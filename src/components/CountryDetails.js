@@ -3,50 +3,44 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
 function CountryDetails({ countriesDataObj }) {
-  const [detailsList, setDetailsList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [detailsList, setDetailsList] = useState(null);
 
   const { countryId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const requestedCountry = countriesDataObj.find((oneCountry) => {
-      if (oneCountry.alpha3Code === countryId) {
-        console.log(oneCountry.alpha3Code);
-        console.log('oneCountry', oneCountry);
-        return true;
-      }
+      return oneCountry.alpha3Code === countryId;
     });
 
     setDetailsList(requestedCountry);
-    setLoading(false);
   }, [countryId]);
 
-  console.log('detailsList', detailsList);
-  console.log(typeof detailsList);
-  // console.log(detailsList.name.common);
-  // console.log(detailsList.name.official);
-
   if (!detailsList) {
-    return <Navigate to="/error" />;
+    return (
+      <div className="col-7">
+        <p>Country not found</p>
+      </div>
+    );
   }
 
   return (
     <div className="col-7">
-      {loading && <p>Loading ...</p>}
-
       {detailsList && (
         <div>
-          <img src="https://restcountries.eu/data/fra.svg" alt="country flag" />
-          {/* <h1>{detailsList.name.common}</h1> */}
-
-          <h2>{detailsList.alpha3Code}</h2>
+          <img
+            width="150"
+            src={`http://www.geognos.com/api/en/countries/flag/${detailsList.alpha2Code}.png`}
+            alt="country-flag"
+          />{' '}
+          <h1>{detailsList.name.common}</h1>
+          <h3>{detailsList.alpha3Code}</h3>
           <table className="table">
             <thead></thead>
             <tbody>
               <tr>
                 <td>Capital</td>
-                <td>{detailsList.capital}</td>
+                <td>{detailsList.capital[0]}</td>
               </tr>
               <tr>
                 <td>Area</td>
@@ -58,13 +52,21 @@ function CountryDetails({ countriesDataObj }) {
               <tr>
                 <td>Borders</td>
                 <td>
-                  {/* {detailsList.map((eachBorder) => {
-                    <ul>
-                      <li>
-                        <Link to={'/' + eachBorder}>{eachBorder}</Link>
-                      </li>
-                    </ul>;
-                  })} */}
+                  {detailsList.borders.map((borderCountry) => {
+                    return (
+                      <ul key={borderCountry}>
+                        <li>
+                          <Link to={'/' + borderCountry}>
+                            {
+                              countriesDataObj.find((country) => {
+                                return country.alpha3Code === borderCountry;
+                              }).name.common
+                            }
+                          </Link>
+                        </li>
+                      </ul>
+                    );
+                  })}
                 </td>
               </tr>
             </tbody>

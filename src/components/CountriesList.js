@@ -1,32 +1,38 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function CountriesList({ countriesObj }) {
+function CountriesList() {
   const [countriesList, setCountriesList] = useState([]);
 
   useEffect(() => {
-    setCountriesList(countriesObj);
-    console.log(countriesList);
+    const fetchData = async () => {
+      const response = await axios.get(
+        'https://ih-countries-api.herokuapp.com/countries'
+      );
+      setCountriesList(response.data);
+    };
+
+    fetchData();
   }, []);
 
   return (
-    <div className="col-5">
+    <div className="col-5" style={{ maxHeight: '90vh', overflow: 'scroll' }}>
       <div className="list-group">
         {countriesList.map((eachCountry) => {
           return (
-            <div
+            <Link
               key={eachCountry.alpha3Code}
               className="list-group-item list-group-item-action"
-              style={{ maxHeight: '90vh', overflow: 'scroll' }}
+              to={'/' + eachCountry.alpha3Code}
             >
               <img
-                src="https://www.countryflags.io/AW/flat/32.png"
+                width="50"
+                src={`http://www.geognos.com/api/en/countries/flag/${eachCountry.alpha2Code}.png`}
                 alt="country-flag"
               />
-              <Link to={'/' + eachCountry.alpha3Code}>
-                <p>{eachCountry.name.common}</p>
-              </Link>
-            </div>
+              <p>{eachCountry.name.common}</p>
+            </Link>
           );
         })}
       </div>
